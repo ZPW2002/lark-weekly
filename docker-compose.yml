@@ -1,0 +1,22 @@
+services:
+  lark-weekly:
+    build: .
+    container_name: lark-weekly
+    env_file: .env
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+    volumes:
+      # lark-cli 配置与运行缓存(token 刷新需要可写)
+      - ${LARK_CLI_HOME:-~/.lark-cli}:/root/.lark-cli
+      # lark-cli 加密凭据(app secret / token / master.key)
+      - ${LARK_DATA_HOME:-~/.local/share/lark-cli}:/root/.local/share/lark-cli
+      # pi 的模型凭据与设置(auth.json 内含 API key)
+      - ${PI_AGENT_HOME:-~/.pi/agent}:/root/.pi/agent
+      # 运行状态:周报汇总、待确认卡片信息
+      - ./state:/data/state
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
